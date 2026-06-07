@@ -1,0 +1,554 @@
+
+
+import streamlit as st
+import pandas as pd
+import numpy as np
+import pickle
+import matplotlib.pyplot as plt
+import seaborn as sns
+import plotly.express as px
+
+
+st.set_page_config(page_title="Health Prediction System", page_icon="🩺", layout="centered")
+
+diabetes_model = pickle.load(open("model/diabetes_model.pkl", "rb"))
+anemia_model = pickle.load(open("model/anemia_model.pkl", "rb"))
+
+st.title("🩺 Health Prediction and Report Analyzer")
+st.markdown("### Predict Diseases & Analyze Health Reports with AI 🧠")
+st.divider()
+
+model_choice = st.sidebar.selectbox("Choose Prediction Model", ["--Select--", "🍬 Diabetes Prediction", "🩸 Anemia Prediction"])
+
+def show_plot(fig):
+    st.pyplot(fig)
+
+
+# 🍬 Diabetes Prediction Section
+
+if model_choice == "🍬 Diabetes Prediction":
+    st.subheader("Diabetes Prediction Model")
+    st.info("Enter your health parameters below or upload a report CSV file.")
+
+    upload_option = st.radio("Select input method:", ["Manual Input", "Upload CSV"])
+    
+    # 🧮 Manual Input Section
+    
+    if upload_option == "Manual Input":
+        HbA1C = st.number_input("HbA1C (%)", 0.0)
+        glucose = st.number_input("Estimated Average Glucose (mg/dL)", 0.0)
+        cholesterol = st.number_input("Cholesterol (mg/dL)", 0.0)
+        triglycerides = st.number_input("Triglycerides (mg/dL)", 0.0)
+        bp_sys = st.number_input("Blood Pressure (Systolic mmHg)", 0.0)
+        bp_dia = st.number_input("Blood Pressure (Diastolic mmHg)", 0.0)
+
+        if st.button("Predict Diabetes"):
+            input_data = np.array([[HbA1C, glucose, cholesterol, triglycerides, bp_sys, bp_dia]])
+            prediction = diabetes_model.predict(input_data)[0]
+
+            
+            risk = "Low"
+            doctor_consultancy = 30
+            if HbA1C > 6.5 or glucose > 140 or cholesterol > 200:
+                risk = "High"
+                doctor_consultancy = 90
+            elif 5.7 <= HbA1C <= 6.5:
+                risk = "Moderate"
+                doctor_consultancy = 70
+
+            
+            st.markdown("## 🧠 **AI Health Report Summary**")
+            if prediction == 1:
+                st.error("⚠️ High Risk of Diabetes Detected!")
+                st.write(
+                    "- Your blood glucose and HbA1C levels indicate poor sugar control.\n"
+                    "- There’s a significant risk of type 2 diabetes development.\n"
+                    "- Elevated cholesterol or blood pressure adds cardiovascular strain.\n"
+                    "- Medical intervention and diet changes are urgently required.\n"
+                    "- Please consult your doctor for treatment and continuous monitoring."
+                )
+            elif risk == "Moderate":
+                st.warning("🟠 Moderate Risk — Prediabetic Indicators Found.")
+                st.write(
+                    "- Your glucose and HbA1C levels are slightly above the healthy range.\n"
+                    "- You may be in a prediabetic stage if not managed proactively.\n"
+                    "- Cholesterol and BP levels are borderline high, needing lifestyle control.\n"
+                    "- Early prevention can completely reverse this trend.\n"
+                    "- Focus on regular exercise and balanced nutrition."
+                )
+            else:
+                st.success("✅ No Diabetes Detected — You’re in a Healthy Range!")
+                st.write(
+                    "- All parameters are within normal healthy limits.\n"
+                    "- Excellent sugar and cholesterol management observed.\n"
+                    "- No signs of diabetes or cardiovascular stress.\n"
+                    "- Maintain current lifestyle and keep regular yearly checkups.\n"
+                    "- Focus on fitness, hydration, and mental health."
+                )
+
+            
+            st.markdown("### 🏥 **Doctor Consultancy Recommendation Level**")
+            progress_html = f"""
+            <div style='width: 100%; background-color: #e0e0e0; border-radius: 20px; height: 25px;'>
+                <div style='width: {doctor_consultancy}%; background-color: #007bff;
+                            height: 25px; border-radius: 20px; text-align: center;
+                            color: white; font-weight: bold; line-height: 25px;'>
+                    {doctor_consultancy}%
+                </div>
+            </div>
+            """
+            st.markdown(progress_html, unsafe_allow_html=True)
+
+            
+            st.markdown("### 🥗 **Lifestyle & Diet Recommendations**")
+            if risk == "High":
+                st.markdown("""
+                - 🚫 **Avoid:** sugary drinks, desserts, alcohol, and fried meals.  
+                - ✅ **Eat:** fiber-rich foods (oats, lentils, green veggies, apples, guava).  
+                - 🏃 **Exercise:** 30–45 mins/day (walking, yoga, cycling).  
+                - 💧 **Hydrate:** drink 3L of water/day, sleep 7–8 hours.  
+                - 🩺 **Consult:** doctor immediately for diabetes management plan.  
+                """)
+            elif risk == "Moderate":
+                st.markdown("""
+                - ⚖️ **Limit:** sugar, refined carbs, and late-night meals.  
+                - 🍽 **Add:** proteins (paneer, tofu, eggs, legumes).  
+                - 🧘 **Stay Active:** 5 days/week physical activity.  
+                - 💧 **Hydrate:** 2–3L water daily.  
+                - 🩺 **Consult:** doctor once every 3–4 months.  
+                """)
+            else:
+                st.markdown("""
+                - 🥦 **Maintain:** balanced diet (whole grains, protein, fruits).  
+                - 🚶 **Activity:** 30 mins daily exercise.  
+                - 🌙 **Sleep:** 7–8 hrs per night.  
+                - 💧 **Hydrate:** 2.5L water/day.  
+                - 🩺 **Consult:** once a year for general checkup.  
+                """)
+
+            
+            normal_values = {
+                "HbA1C": 5.6,
+                "EstimatedAverageGlucose": 126,
+                "Cholesterol": 200,
+                "Triglycerides": 150,
+                "BloodPressureSys": 120,
+                "BloodPressureDia": 80,
+            }
+
+            values = [HbA1C, glucose, cholesterol, triglycerides, bp_sys, bp_dia]
+            compare_df = pd.DataFrame({
+                "Parameter": list(normal_values.keys()),
+                "Your Value": values,
+                "Normal Max": list(normal_values.values())
+            })
+
+            fig = px.bar(compare_df, x="Parameter", y=["Your Value", "Normal Max"],
+                         barmode="group", color_discrete_sequence=["#ff6666", "#66ccff"],
+                         title="📊 Your Report vs Healthy Range")
+            st.plotly_chart(fig)
+
+            st.success("✅ Full AI Report with Lifestyle & Consultancy Insights Generated Successfully!")
+
+    
+    # 📁 CSV Upload Section
+    
+    elif upload_option == "Upload CSV":
+        uploaded_file = st.file_uploader("Upload your report CSV", type=["csv"])
+
+        if uploaded_file is not None:
+            try:
+                df = pd.read_csv(uploaded_file)
+                st.write("📄 Uploaded Report Preview:")
+                st.dataframe(df)
+
+                required_cols = ["HbA1C", "EstimatedAverageGlucose", "Cholesterol",
+                                 "Triglycerides", "BloodPressureSys", "BloodPressureDia"]
+
+                if not all(col in df.columns for col in required_cols):
+                    st.error("⚠️ Uploaded file format incorrect. Columns needed:")
+                    st.write(required_cols)
+                else:
+                    if "Label" in df.columns:
+                        input_df = df.drop("Label", axis=1)
+                    else:
+                        input_df = df.copy()
+
+                    predictions = diabetes_model.predict(input_df)
+                    df["Prediction"] = predictions
+                    st.success("✅ Predictions Generated Successfully!")
+
+                    
+                    for i, row in df.iterrows():
+                        st.markdown(f"## 🧬 Patient {i+1} Report")
+                        risk = "Low"
+                        if row["HbA1C"] > 6.5 or row["EstimatedAverageGlucose"] > 140 or row["Cholesterol"] > 200:
+                            risk = "High"
+                        elif 5.7 <= row["HbA1C"] <= 6.5:
+                            risk = "Moderate"
+
+                        if row["Prediction"] == 1:
+                            st.error("⚠️ High Risk of Diabetes Detected!")
+                        elif risk == "Moderate":
+                            st.warning("🟠 Moderate Risk — Possible Prediabetes.")
+                        else:
+                            st.success("✅ No Diabetes Detected!")
+
+                        st.write(
+                            f"- **Risk Level:** {risk}\n"
+                            f"- **HbA1C:** {row['HbA1C']} | **Glucose:** {row['EstimatedAverageGlucose']} mg/dL\n"
+                            f"- **Cholesterol:** {row['Cholesterol']} | **BP:** {row['BloodPressureSys']}/{row['BloodPressureDia']} mmHg\n"
+                        )
+
+                    
+                    st.subheader("📉 Parameter Comparison (Average Values)")
+                    avg_values = df[required_cols].mean()
+                    compare_df = pd.DataFrame({
+                        "Parameter": required_cols,
+                        "Your Avg Value": avg_values.values,
+                        "Normal Max": [5.6, 126, 200, 150, 120, 80]
+                    })
+                    fig = px.bar(compare_df, x="Parameter", y=["Your Avg Value", "Normal Max"],
+                                 barmode="group", color_discrete_sequence=["#ff6666", "#66ccff"],
+                                 title="Average Report vs Normal Range")
+                    st.plotly_chart(fig)
+
+                    st.info("🩺 Full Report Generated with Summary and Recommendations.")
+
+                    
+                    # 🧠 ENHANCED AI HEALTH REPORT SUMMARY
+                    
+                    st.markdown("## 🧠 **AI Health Report Summary (Based on Average Values)**")
+
+                    HbA1C = avg_values["HbA1C"]
+                    glucose = avg_values["EstimatedAverageGlucose"]
+                    cholesterol = avg_values["Cholesterol"]
+
+                    risk = "Low"
+                    doctor_consultancy = 30  # Default percentage
+
+                    if HbA1C > 6.5 or glucose > 140 or cholesterol > 200:
+                        risk = "High"
+                        doctor_consultancy = 90
+                    elif 5.7 <= HbA1C <= 6.5:
+                        risk = "Moderate"
+                        doctor_consultancy = 70
+
+                    
+                    if risk == "High":
+                        st.error("⚠️ High Risk of Diabetes Detected!")
+                        st.write(
+                            "- Blood glucose and HbA1C levels indicate poor sugar control.\n"
+                            "- Type 2 diabetes risk is **very high** — immediate medical attention recommended.\n"
+                            "- High cholesterol or BP adds cardiac risk.\n"
+                            "- Doctor consultation is **strongly advised.**"
+                        )
+                    elif risk == "Moderate":
+                        st.warning("🟠 Moderate Risk — Prediabetic Indicators Found.")
+                        st.write(
+                            "- Slightly elevated glucose or HbA1C indicates prediabetic stage.\n"
+                            "- Lifestyle changes and early monitoring can **prevent progression.**\n"
+                            "- Doctor consultation **recommended within a few months.**"
+                        )
+                    else:
+                        st.success("✅ Low Risk — No Diabetes Detected!")
+                        st.write(
+                            "- All parameters are in a healthy range.\n"
+                            "- Maintain your current healthy lifestyle.\n"
+                            "- Routine annual check-ups are sufficient."
+                        )
+
+                    
+                    st.markdown("### 🏥 **Doctor Consultancy Recommendation Level**")
+                    progress_html = f"""
+                    <div style='width: 100%; background-color: #e0e0e0; border-radius: 20px; height: 25px;'>
+                        <div style='width: {doctor_consultancy}%; background-color: #007bff;
+                                    height: 25px; border-radius: 20px; text-align: center;
+                                    color: white; font-weight: bold; line-height: 25px;'>
+                            {doctor_consultancy}%
+                        </div>
+                    </div>
+                    """
+                    st.markdown(progress_html, unsafe_allow_html=True)
+
+                    
+                    st.markdown("### 🥗 **Lifestyle & Diet Recommendations**")
+
+                    if risk == "High":
+                        st.markdown("""
+                        - 🚫 **Avoid:** sugary foods, desserts, alcohol, and fried meals.  
+                        - ✅ **Eat:** fiber-rich foods (oats, lentils, green veggies, apples, guava).  
+                        - 🏃 **Exercise:** 30–45 mins/day (walking, yoga, cycling).  
+                        - 💧 **Hydrate:** drink 3L of water/day, sleep 7–8 hours.  
+                        - 🩺 **Consult:** doctor immediately for diabetes management plan.  
+                        """)
+                    elif risk == "Moderate":
+                        st.markdown("""
+                        - ⚖️ **Limit:** sugar, refined carbs, and late-night meals.  
+                        - 🍽 **Add:** proteins (paneer, tofu, eggs, legumes).  
+                        - 🧘 **Stay Active:** 5 days/week physical activity.  
+                        - 💧 **Hydrate:** 2–3L water daily.  
+                        - 🩺 **Consult:** doctor once every 3–4 months.  
+                        """)
+                    else:
+                        st.markdown("""
+                        - 🥦 **Maintain:** balanced diet (whole grains, protein, fruits).  
+                        - 🚶 **Activity:** 30 mins daily exercise.  
+                        - 🌙 **Sleep:** 7–8 hrs per night.  
+                        - 💧 **Hydrate:** 2.5L water/day.  
+                        - 🩺 **Consult:** once a year for general checkup.  
+                        """)
+
+                    st.success("✅ Full AI Report with Lifestyle & Consultancy Insights Generated Successfully!")
+
+            except Exception as e:
+                st.error(f"⚠️ Error while processing file: {e}")
+
+
+
+
+# 🩸 Anemia Prediction Section 
+
+elif model_choice == "🩸 Anemia Prediction":
+    st.subheader("🩸 Anemia Prediction Model")
+    st.info("Enter your blood parameters manually or upload a lab report (CSV). The AI will assess your anemia risk and provide health insights, recommendations, and doctor consultation guidance.")
+
+    upload_option = st.radio("Select input method:", ["Manual Input", "Upload CSV"], horizontal=True)
+
+       
+    # 🧮 Manual Input Section
+    
+    if upload_option == "Manual Input":
+        gender = st.selectbox("Gender", ["Male", "Female"])
+        gender_val = 0 if gender == "Male" else 1
+        hemoglobin = st.number_input("Hemoglobin (g/dL)", 0.0)
+        mch = st.number_input("Mean Corpuscular Hemoglobin (MCH)", 0.0)
+        mchc = st.number_input("Mean Corpuscular Hemoglobin Concentration (MCHC)", 0.0)
+        mcv = st.number_input("Mean Corpuscular Volume (MCV)", 0.0)
+
+        if st.button("🔍 Analyze Report"):
+            # Make input dataframe
+            input_data = np.array([[gender_val, hemoglobin, mch, mchc, mcv]])
+            prediction = anemia_model.predict(input_data)[0]
+
+            
+            df = pd.DataFrame([{
+                "Gender": gender_val,
+                "Hemoglobin": hemoglobin,
+                "MCH": mch,
+                "MCHC": mchc,
+                "MCV": mcv,
+                "Prediction": prediction
+            }])
+
+            
+            for i, row in df.iterrows():
+                st.markdown(f"## 🧬 Patient {i+1} Report")
+                risk = "Low"
+                if row["Hemoglobin"] < 11 or row["MCH"] < 27 or row["MCHC"] < 31 or row["MCV"] < 80:
+                    risk = "High"
+                elif 11 <= row["Hemoglobin"] <= 12:
+                    risk = "Moderate"
+
+                
+                st.markdown("## 🧠 **AI Health Report Summary**")
+                if row["Prediction"] == 1 or risk == "High":
+                    st.error("⚠️ High Risk of Anemia Detected!")
+                    summary = (
+                        "- Your blood results suggest iron deficiency anemia.\n"
+                        "- Low hemoglobin and MCV indicate smaller red blood cells.\n"
+                        "- Reduced MCHC means less hemoglobin per cell.\n"
+                        "- Immediate consultation with a physician is advised.\n"
+                        "- Iron supplementation and diet modification are crucial."
+                    )
+                    doctor_level = 90
+                elif risk == "Moderate":
+                    st.warning("🟠 Moderate Risk of Anemia.")
+                    summary = (
+                        "- Your hemoglobin and red cell indices are slightly below normal.\n"
+                        "- Early-stage anemia or poor nutrition might be present.\n"
+                        "- Monitor iron levels and include nutrient-rich foods.\n"
+                        "- Consider a follow-up blood test in 1 month."
+                    )
+                    doctor_level = 65
+                else:
+                    st.success("✅ No Anemia Detected — You’re in a Healthy Range!")
+                    summary = (
+                        "- All red blood cell parameters are within normal range.\n"
+                        "- No signs of anemia or iron deficiency.\n"
+                        "- Maintain a healthy, iron-rich diet and regular hydration.\n"
+                        "- Keep monitoring with yearly checkups."
+                    )
+                    doctor_level = 25
+
+                st.write(summary)
+
+                
+                st.markdown("### 🩺 Doctor Consultation Urgency")
+                st.progress(doctor_level / 100)
+                st.write(f"**Consultation Priority:** {doctor_level}%")
+
+                
+                st.markdown("### 🥗 **Lifestyle & Diet Recommendations**")
+                if risk == "High":
+                    st.write(
+                        "- Include iron-rich foods: spinach, red meat, lentils, beets.\n"
+                        "- Add Vitamin C sources (orange, amla) to enhance absorption.\n"
+                        "- Avoid tea/coffee near meals (blocks iron uptake).\n"
+                        "- Ensure 8 hours of sleep daily and regular meals.\n"
+                        "- Doctor may prescribe iron or folate supplements."
+                    )
+                elif risk == "Moderate":
+                    st.write(
+                        "- Eat eggs, legumes, tofu, and dark green vegetables.\n"
+                        "- Increase iron intake with fish and nuts.\n"
+                        "- Stay hydrated and reduce stress.\n"
+                        "- Perform light exercise daily to improve blood oxygenation."
+                    )
+                else:
+                    st.write(
+                        "- Maintain a balanced iron intake through natural foods.\n"
+                        "- Continue including leafy greens, fruits, and cereals.\n"
+                        "- Avoid skipping meals.\n"
+                        "- Annual CBC test recommended for general wellness."
+                    )
+
+                
+                normal_values = {
+                    "Hemoglobin": 13.5 if gender == "Male" else 12.0,
+                    "MCH": 29,
+                    "MCHC": 33,
+                    "MCV": 90
+                }
+
+                compare_df = pd.DataFrame({
+                    "Parameter": list(normal_values.keys()),
+                    "Your Value": [row["Hemoglobin"], row["MCH"], row["MCHC"], row["MCV"]],
+                    "Healthy Range": list(normal_values.values())
+                })
+
+                fig = px.bar(compare_df, x="Parameter", y=["Your Value", "Healthy Range"],
+                             barmode="group", color_discrete_sequence=["#ff6666", "#66ccff"],
+                             title="📊 Your Report vs Healthy Range")
+                st.plotly_chart(fig)
+
+        
+    # 📁 CSV Upload Section
+   
+    else:
+        uploaded_file = st.file_uploader("📂 Upload your Anemia Report (CSV)", type=["csv"])
+        if uploaded_file is not None:
+            df = pd.read_csv(uploaded_file)
+            st.write("📄 Uploaded Report Preview:")
+            st.dataframe(df.head())
+
+            
+            if "Result" in df.columns:
+                input_df = df.drop("Result", axis=1)
+            else:
+                input_df = df.copy()
+
+            
+            if "Gender" in input_df.columns:
+                input_df["Gender"] = input_df["Gender"].replace({"Male": 0, "Female": 1})
+
+            
+            input_df = input_df.apply(pd.to_numeric, errors="coerce").fillna(0)
+
+            
+            predictions = anemia_model.predict(input_df)
+            df["Prediction"] = predictions
+            st.success("✅ Predictions generated successfully!")
+
+            
+            for i, row in df.iterrows():
+                st.markdown(f"## 🧬 Patient {i+1} Report")
+                risk = "Low"
+                if row["Hemoglobin"] < 11 or row["MCH"] < 27 or row["MCHC"] < 31 or row["MCV"] < 80:
+                    risk = "High"
+                elif 11 <= row["Hemoglobin"] <= 12:
+                    risk = "Moderate"
+
+                
+                st.markdown("## 🧠 **AI Health Report Summary**")
+                if row["Prediction"] == 1 or risk == "High":
+                    st.error("⚠️ High Risk of Anemia Detected!")
+                    summary = (
+                        "- Your blood results suggest iron deficiency anemia.\n"
+                        "- Low hemoglobin and MCV indicate smaller red blood cells.\n"
+                        "- Reduced MCHC means less hemoglobin per cell.\n"
+                        "- Immediate consultation with a physician is advised.\n"
+                        "- Iron supplementation and diet modification are crucial."
+                    )
+                    doctor_level = 90
+                elif risk == "Moderate":
+                    st.warning("🟠 Moderate Risk of Anemia.")
+                    summary = (
+                        "- Your hemoglobin and red cell indices are slightly below normal.\n"
+                        "- Early-stage anemia or poor nutrition might be present.\n"
+                        "- Monitor iron levels and include nutrient-rich foods.\n"
+                        "- Consider a follow-up blood test in 1 month."
+                    )
+                    doctor_level = 65
+                else:
+                    st.success("✅ No Anemia Detected — You’re in a Healthy Range!")
+                    summary = (
+                        "- All red blood cell parameters are within normal range.\n"
+                        "- No signs of anemia or iron deficiency.\n"
+                        "- Maintain a healthy, iron-rich diet and regular hydration.\n"
+                        "- Keep monitoring with yearly checkups."
+                    )
+                    doctor_level = 25
+
+                st.write(summary)
+
+                
+                st.markdown("### 🩺 Doctor Consultation Urgency")
+                st.progress(doctor_level / 100)
+                st.write(f"**Consultation Priority:** {doctor_level}%")
+
+                
+                st.markdown("### 🥗 **Lifestyle & Diet Recommendations**")
+                if risk == "High":
+                    st.write(
+                        "- Include iron-rich foods: spinach, red meat, lentils, beets.\n"
+                        "- Add Vitamin C sources (orange, amla) to enhance absorption.\n"
+                        "- Avoid tea/coffee near meals (blocks iron uptake).\n"
+                        "- Ensure 8 hours of sleep daily and regular meals.\n"
+                        "- Doctor may prescribe iron or folate supplements."
+                    )
+                elif risk == "Moderate":
+                    st.write(
+                        "- Eat eggs, legumes, tofu, and dark green vegetables.\n"
+                        "- Increase iron intake with fish and nuts.\n"
+                        "- Stay hydrated and reduce stress.\n"
+                        "- Perform light exercise daily to improve blood oxygenation."
+                    )
+                else:
+                    st.write(
+                        "- Maintain a balanced iron intake through natural foods.\n"
+                        "- Continue including leafy greens, fruits, and cereals.\n"
+                        "- Avoid skipping meals.\n"
+                        "- Annual CBC test recommended for general wellness."
+                    )
+
+                
+                normal_values = {
+                    "Hemoglobin": 13.5 if row.get("Gender", 0) == 0 else 12.0,
+                    "MCH": 29,
+                    "MCHC": 33,
+                    "MCV": 90
+                }
+
+                compare_df = pd.DataFrame({
+                    "Parameter": list(normal_values.keys()),
+                    "Your Value": [row["Hemoglobin"], row["MCH"], row["MCHC"], row["MCV"]],
+                    "Healthy Range": list(normal_values.values())
+                })
+
+                fig = px.bar(compare_df, x="Parameter", y=["Your Value", "Healthy Range"],
+                             barmode="group", color_discrete_sequence=["#ff6666", "#66ccff"],
+                             title="📊 Your Report vs Healthy Range")
+                st.plotly_chart(fig)
+
+            st.info("🩺 Full Anemia Report Generated with Risk Summary, Diet Plan, and Doctor Priority Guidance.")

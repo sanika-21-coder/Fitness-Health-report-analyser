@@ -1,0 +1,2123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitCheck - Intelligent Health Report Analyzer</title>
+    <style>
+        /* FitCheck Website Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #ffffff;
+        }
+
+        /* Header Styles */
+        .header {
+            background: linear-gradient(135deg, rgba(53, 164, 154, 0.9), rgba(53, 164, 154, 0.7));
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: white;
+            text-decoration: none;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-menu a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+        }
+
+        .nav-menu a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .nav-menu a.active {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Prime Button in Header */
+        .prime-btn {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #333;
+            padding: 0.7rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 2px solid #ffd700;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .prime-btn::before {
+            content: '👑';
+            margin-right: 0.5rem;
+        }
+
+        .prime-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
+        }
+
+        /* Page Structure */
+        .page {
+            display: none;
+            min-height: 100vh;
+            padding-top: 100px;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, rgba(53, 164, 154, 0.1), rgba(53, 164, 154, 0.05)), 
+                        url('image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(53,164,154,0.3)"/><circle cx="80" cy="40" r="1.5" fill="rgba(53,164,154,0.2)"/><circle cx="40" cy="70" r="1" fill="rgba(53,164,154,0.3)"/><path d="M10,50 Q50,30 90,50" stroke="rgba(53,164,154,0.2)" fill="none"/><rect x="60" y="10" width="3" height="15" rx="1" fill="rgba(53,164,154,0.2)"/><rect x="65" y="15" width="3" height="10" rx="1" fill="rgba(53,164,154,0.3)"/></svg>');
+            min-height: calc(100vh - 100px);
+            display: flex;
+            align-items: center;
+            padding: 2rem;
+            background-size: 200px 200px;
+        }
+
+        .hero-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .hero-content h1 {
+            font-size: 4rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+
+        .hero-content h1 .highlight {
+            color: rgba(53, 164, 154, 1);
+        }
+
+        .hero-content p {
+            font-size: 1.4rem;
+            color: #666;
+            margin-bottom: 2rem;
+            line-height: 1.8;
+        }
+
+        .cta-button {
+            background: linear-gradient(135deg, rgba(53, 164, 154, 1), rgba(53, 164, 154, 0.8));
+            color: white;
+            padding: 18px 35px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin-right: 1rem;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(53, 164, 154, 0.3);
+        }
+
+        .hero-image {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .health-icon {
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(135deg, rgba(53, 164, 154, 0.1), rgba(53, 164, 154, 0.05));
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .health-icon::before {
+            content: '🩺';
+            font-size: 8rem;
+        }
+
+        /* Subscription Section Styles */
+        .subscription-section {
+            padding: 80px 2rem;
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+        }
+
+        .subscription-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .subscription-container h2 {
+            font-size: 3.5rem;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+
+        .subscription-container h2::before {
+            content: '👑 ';
+        }
+
+        .subscription-container p {
+            font-size: 1.4rem;
+            color: #555;
+            margin-bottom: 3rem;
+        }
+
+        .subscription-plans {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .plan-card {
+            background: white;
+            padding: 3rem 2rem;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .plan-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #c0c0c0, #a8a8a8);
+        }
+
+        .plan-card.gold::before {
+            background: linear-gradient(90deg, #ffd700, #ffed4e);
+        }
+
+        .plan-card.platinum::before {
+            background: linear-gradient(90deg, #e5e4e2, #b8b8b8);
+        }
+
+        .plan-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 60px rgba(0,0,0,0.2);
+        }
+
+        .plan-header {
+            margin-bottom: 2rem;
+        }
+
+        .plan-name {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        .plan-name.silver {
+            color: #7d7d7d;
+        }
+
+        .plan-name.gold {
+            color: #ffa500;
+        }
+
+        .plan-name.platinum {
+            color: #666;
+        }
+
+        .plan-price {
+            font-size: 3rem;
+            font-weight: bold;
+            color: rgba(53, 164, 154, 1);
+            margin-bottom: 0.5rem;
+        }
+
+        .plan-period {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .plan-description {
+            font-size: 1rem;
+            color: #777;
+            margin-bottom: 2rem;
+        }
+
+        .plan-features {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 2rem;
+        }
+
+        .plan-features li {
+            padding: 0.8rem 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+        }
+
+        .plan-features li::before {
+            content: '✓';
+            color: #28a745;
+            font-weight: bold;
+            margin-right: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .plan-features li.unavailable {
+            color: #ccc;
+        }
+
+        .plan-features li.unavailable::before {
+            content: '✗';
+            color: #dc3545;
+        }
+
+        .subscribe-btn {
+            width: 100%;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .subscribe-btn.silver {
+            background: linear-gradient(135deg, #c0c0c0, #a8a8a8);
+            color: white;
+        }
+
+        .subscribe-btn.gold {
+            background: linear-gradient(135deg, #ffd700, #ffb347);
+            color: #333;
+        }
+
+        .subscribe-btn.platinum {
+            background: linear-gradient(135deg, #e5e4e2, #c0c0c0);
+            color: #333;
+        }
+
+        .subscribe-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .popular-badge {
+            position: absolute;
+            top: -10px;
+            right: 20px;
+            background: #ff6b6b;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transform: rotate(10deg);
+        }
+
+        /* Analyzer Section */
+        .analyzer-section {
+            padding: 80px 2rem;
+            background: linear-gradient(135deg, rgba(53, 164, 154, 0.05), rgba(53, 164, 154, 0.02));
+        }
+
+        .analyzer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .analyzer-container h2 {
+            font-size: 3rem;
+            color: #2c3e50;
+            margin-bottom: 3rem;
+        }
+
+        .analyzer-container p {
+            font-size: 1.3rem;
+            color: #666;
+            margin-bottom: 2rem;
+        }
+
+        .report-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .report-card {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 2px solid rgba(53, 164, 154, 0.1);
+        }
+
+        .report-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(53, 164, 154, 0.2);
+        }
+
+        .report-card h3 {
+            color: rgba(53, 164, 154, 1);
+            font-size: 1.7rem;
+            margin-bottom: 1rem;
+        }
+
+        .report-card p {
+            color: #666;
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        .select-button {
+            background: linear-gradient(135deg, rgba(53, 164, 154, 1), rgba(53, 164, 154, 0.8));
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+
+        .select-button:hover {
+            background: rgba(53, 164, 154, 1);
+            transform: scale(1.05);
+        }
+
+        /* Upload Section */
+        .upload-section {
+            padding: 80px 2rem;
+            background: white;
+        }
+
+        .upload-container {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .upload-container h2 {
+            font-size: 3rem;
+            color: #2c3e50;
+            margin-bottom: 2rem;
+        }
+
+        .upload-container p {
+            font-size: 1.3rem;
+            color: #666;
+            margin-bottom: 3rem;
+        }
+
+        .upload-form {
+            background: linear-gradient(135deg, rgba(53, 164, 154, 0.05), rgba(53, 164, 154, 0.02));
+            padding: 3rem;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border: 2px dashed rgba(53, 164, 154, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .upload-form:hover {
+            border-color: rgba(53, 164, 154, 0.6);
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 2rem;
+        }
+
+        .file-input {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-input-button {
+            background: linear-gradient(135deg, rgba(53, 164, 154, 1), rgba(53, 164, 154, 0.8));
+            color: white;
+            padding: 20px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .file-input-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(53, 164, 154, 0.3);
+        }
+
+        .file-info {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 10px;
+            border: 1px solid rgba(53, 164, 154, 0.2);
+            display: none;
+        }
+
+        .file-info.show {
+            display: block;
+        }
+
+        .report-type-selection {
+            margin-bottom: 2rem;
+        }
+
+        .report-type-selection label {
+            display: block;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .report-type-select {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.1rem;
+            border: 2px solid rgba(53, 164, 154, 0.2);
+            border-radius: 10px;
+            background: white;
+            color: #333;
+            cursor: pointer;
+        }
+
+        .report-type-select:focus {
+            outline: none;
+            border-color: rgba(53, 164, 154, 1);
+        }
+
+        .analyze-button {
+            background: linear-gradient(135deg, rgba(53, 164, 154, 1), rgba(53, 164, 154, 0.8));
+            color: white;
+            padding: 18px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 2rem;
+        }
+
+        .analyze-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(53, 164, 154, 0.3);
+        }
+
+        .analyze-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Analysis Results Styles */
+        .results-section {
+            padding: 80px 2rem;
+            background: linear-gradient(135deg, rgba(53, 164, 154, 0.03), rgba(53, 164, 154, 0.01));
+            min-height: calc(100vh - 100px);
+        }
+
+        .results-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .results-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .results-header h2 {
+            font-size: 3.2rem;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+
+        .results-header .report-info {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            display: inline-block;
+            margin: 1rem 0;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .result-card {
+            background: linear-gradient(145deg, #ffffff, #f8f9fa);
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            border: 2px solid rgba(53, 164, 154, 0.1);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+        }
+
+        .result-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(53, 164, 154, 0.1), 
+                transparent);
+            transition: left 0.6s ease;
+        }
+
+        .result-card:hover::before {
+            left: 100%;
+        }
+
+        .result-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 25px 50px rgba(53, 164, 154, 0.2);
+            border-color: rgba(53, 164, 154, 0.3);
+        }
+
+        .result-card::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(53, 164, 154, 0.05) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+        }
+
+        .result-card:hover::after {
+            opacity: 1;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-icon {
+            font-size: 2.5rem;
+            margin-right: 1rem;
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.1));
+        }
+
+        .card-title {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .card-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .summary-card {
+            grid-column: span 2;
+        }
+
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .stat-item {
+            background: rgba(53, 164, 154, 0.1);
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: rgba(53, 164, 154, 1);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 0.5rem;
+        }
+
+        .risk-levels {
+            margin-top: 1rem;
+        }
+
+        .risk-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: white;
+            border-radius: 10px;
+            margin-bottom: 0.8rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .risk-name {
+            font-weight: 500;
+        }
+
+        .risk-level {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .risk-low { background: #d4edda; color: #155724; }
+        .risk-medium { background: #fff3cd; color: #856404; }
+        .risk-high { background: #f8d7da; color: #721c24; }
+
+        .recommendation-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .recommendation-list li {
+            background: white;
+            padding: 1.2rem;
+            margin-bottom: 1rem;
+            border-radius: 10px;
+            border-left: 4px solid rgba(53, 164, 154, 1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: transform 0.2s ease;
+        }
+
+        .recommendation-list li:hover {
+            transform: translateX(10px);
+        }
+
+        .recommendation-list li strong {
+            color: rgba(53, 164, 154, 1);
+        }
+
+        .alert-item {
+            background: linear-gradient(135deg, #fff5f5, #fed7d7);
+            border: 2px solid #fc8181;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .alert-item::before {
+            content: '⚠️';
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            font-size: 2rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .alert-priority {
+            display: inline-block;
+            background: #e53e3e;
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        /* UPDATED: Hospital Finder Styles with Full Width and Scrollbar */
+        .hospital-list {
+            list-style: none;
+            padding: 0;
+            max-height: 400px; /* Set maximum height for scrolling */
+            overflow-y: auto; /* Add vertical scrollbar */
+            overflow-x: hidden; /* Hide horizontal scrollbar */
+            border: 1px solid rgba(53, 164, 154, 0.2);
+            border-radius: 10px;
+            background: #f8f9fa;
+            padding-right: 5px; /* Space for scrollbar */
+        }
+
+        /* Custom Scrollbar Styling */
+        .hospital-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .hospital-list::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .hospital-list::-webkit-scrollbar-thumb {
+            background: rgba(53, 164, 154, 0.6);
+            border-radius: 10px;
+        }
+
+        .hospital-list::-webkit-scrollbar-thumb:hover {
+            background: rgba(53, 164, 154, 0.8);
+        }
+
+        /* UPDATED: Hospital Item with Full Width */
+        .hospital-item {
+            background: white;
+            padding: 1.5rem;
+            margin: 0.5rem; /* Reduced margin for better fit */
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            border-left: 4px solid rgba(53, 164, 154, 1);
+            transition: all 0.3s ease;
+            position: relative;
+            width: calc(100% - 1rem); /* Full width minus margin */
+        }
+
+        .hospital-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(53, 164, 154, 0.2);
+        }
+
+        /* UPDATED: Hospital Header Layout */
+        .hospital-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+            width: 100%;
+        }
+
+        .hospital-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 0.3rem;
+            flex: 1; /* Take available space */
+        }
+
+        .hospital-distance {
+            background: rgba(53, 164, 154, 0.1);
+            color: rgba(53, 164, 154, 1);
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            white-space: nowrap; /* Prevent text wrapping */
+            margin-left: 1rem;
+        }
+
+        .hospital-address {
+            color: #666;
+            margin-bottom: 0.8rem;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        /* UPDATED: Hospital Rating and Specialties */
+        .hospital-rating {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .stars {
+            color: #ffc107;
+            font-size: 1rem;
+        }
+
+        .rating-text {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .hospital-specialties {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin-bottom: 1rem;
+        }
+
+        .specialty-tag {
+            background: rgba(53, 164, 154, 0.1);
+            color: rgba(53, 164, 154, 1);
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        /* UPDATED: Hospital Actions */
+        .hospital-actions {
+            display: flex;
+            gap: 0.8rem;
+            margin-top: 1rem;
+            width: 100%;
+        }
+
+        .action-btn {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            flex: 1; /* Equal width buttons */
+        }
+
+        .directions-btn {
+            background: rgba(53, 164, 154, 1);
+            color: white;
+        }
+
+        .directions-btn:hover {
+            background: rgba(53, 164, 154, 0.8);
+            transform: scale(1.02);
+        }
+
+        .call-btn {
+            background: #28a745;
+            color: white;
+        }
+
+        .call-btn:hover {
+            background: #218838;
+            transform: scale(1.02);
+        }
+
+        /* UPDATED: Nearby Hospitals Card Full Width */
+        .result-card.hospital-card {
+            grid-column: 1 / -1; /* Span full width of grid */
+            max-width: none; /* Remove max-width constraint */
+        }
+
+        /* Add loading animation for scrollable content */
+        .hospital-list.loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+        }
+
+        .hospital-list.loading::before {
+            content: "🏥 Loading hospitals...";
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .location-status {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            border: 2px solid #2196f3;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .location-status.error {
+            background: linear-gradient(135deg, #ffebee, #ffcdd2);
+            border-color: #f44336;
+        }
+
+        .location-status.loading {
+            background: linear-gradient(135deg, #fff8e1, #ffecb3);
+            border-color: #ff9800;
+        }
+
+        .new-analysis-btn {
+            background: linear-gradient(135deg, rgba(53, 164, 154, 1), rgba(53, 164, 154, 0.8));
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 2rem auto;
+            display: block;
+        }
+
+        .new-analysis-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(53, 164, 154, 0.3);
+        }
+
+        /* About Section */
+        .about-section {
+            padding: 80px 2rem;
+            background: white;
+        }
+
+        .about-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .about-container h2 {
+            font-size: 3rem;
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .about-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .about-text {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            color: #555;
+        }
+
+        .about-features {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .feature-item {
+            background: rgba(53, 164, 154, 0.1);
+            padding: 1.5rem;
+            border-radius: 10px;
+            border-left: 4px solid rgba(53, 164, 154, 1);
+        }
+
+        .feature-item h4 {
+            color: rgba(53, 164, 154, 1);
+            margin-bottom: 0.5rem;
+            font-size: 1.2rem;
+        }
+
+        .feature-item p {
+            font-size: 1rem;
+        }
+
+        /* Contact Section */
+        .contact-section {
+            padding: 80px 2rem;
+            background: linear-gradient(135deg, rgba(53, 164, 154, 0.1), rgba(53, 164, 154, 0.05));
+        }
+
+        .contact-container {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .contact-container h2 {
+            font-size: 3rem;
+            color: #2c3e50;
+            margin-bottom: 2rem;
+        }
+
+        .contact-container > p {
+            font-size: 1.3rem;
+            color: #666;
+            margin-bottom: 2rem;
+        }
+
+        .contact-form {
+            background: white;
+            padding: 3rem;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 500;
+            font-size: 1.1rem;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid rgba(53, 164, 154, 0.2);
+            border-radius: 8px;
+            font-size: 1.1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: rgba(53, 164, 154, 1);
+        }
+
+        .submit-button {
+            background: linear-gradient(135deg, rgba(53, 164, 154, 1), rgba(53, 164, 154, 0.8));
+            color: white;
+            padding: 18px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .submit-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(53, 164, 154, 0.3);
+        }
+
+        /* Footer */
+        .footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .footer p {
+            font-size: 1.1rem;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .hero-container {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .hero-content h1 {
+                font-size: 2.8rem;
+            }
+
+            .hero-content p {
+                font-size: 1.2rem;
+            }
+
+            .about-content {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-menu {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .health-icon {
+                width: 300px;
+                height: 300px;
+            }
+
+            .health-icon::before {
+                font-size: 6rem;
+            }
+
+            .analyzer-container h2,
+            .about-container h2,
+            .contact-container h2,
+            .upload-container h2,
+            .results-header h2 {
+                font-size: 2.2rem;
+            }
+
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .summary-card {
+                grid-column: span 1;
+            }
+
+            .subscription-plans {
+                grid-template-columns: 1fr;
+            }
+
+            /* Mobile Responsiveness for Hospital List */
+            .hospital-list {
+                max-height: 300px; /* Smaller height on mobile */
+            }
+            
+            .hospital-item {
+                padding: 1rem;
+                margin: 0.3rem;
+            }
+            
+            .hospital-header {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .hospital-distance {
+                align-self: flex-start;
+                margin-left: 0;
+            }
+            
+            .hospital-actions {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .action-btn {
+                width: 100%;
+            }
+        }
+
+        .scroll-smooth {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body class="scroll-smooth">
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav-container">
+            <a href="#" class="logo" onclick="showPage('home')">FitCheck</a>
+            <ul class="nav-menu">
+                <li><a href="#" onclick="showPage('home')" id="nav-home" class="active">Home</a></li>
+                <li><a href="#" onclick="showPage('upload')" id="nav-upload">Upload Report</a></li>
+                <li><a href="#" onclick="showPage('about')" id="nav-about">About Us</a></li>
+                <li><a href="#" onclick="showPage('contact')" id="nav-contact">Contact Us</a></li>
+                <li><a href="#" onclick="showPage('subscription')" id="nav-subscription" class="prime-btn">FitCheck Prime</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Home Page -->
+    <div id="home" class="page active">
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-container">
+                <div class="hero-content">
+                    <h1>Transform Your <span class="highlight">Health Reports</span> Into Actionable Insights</h1>
+                    <p>FitCheck uses AI to analyze your blood tests and DNA reports, detecting deficiencies and health risks while providing personalized diet and lifestyle recommendations in simple, understandable language.</p>
+                    <a href="#" class="cta-button" onclick="showPage('upload')">Get Started</a>
+                    <a href="#" class="cta-button" style="background: transparent; border: 2px solid rgba(53, 164, 154, 1); color: rgba(53, 164, 154, 1);" onclick="showPage('about')">Learn More</a>
+                </div>
+                <div class="hero-image">
+                    <div class="health-icon"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Report Analyzer Section -->
+        <section class="analyzer-section">
+            <div class="analyzer-container">
+                <h2>Choose Your Report Type</h2>
+                <p>Select the type of health report you want to analyze with our AI-powered system</p>
+                
+                <div class="report-types">
+                    <div class="report-card">
+                        <h3>🩸 Blood Test Analysis</h3>
+                        <p>Comprehensive analysis of blood work including CBC, lipid panels, glucose levels, and vitamin deficiencies. Get instant insights into anemia, diabetes risk, and cardiovascular health markers.</p>
+                        <button class="select-button" onclick="selectReportType('blood')">Analyze Blood Report</button>
+                    </div>
+                    
+                    <div class="report-card">
+                        <h3>🧬 DNA & Genetic Testing</h3>
+                        <p>Unlock your genetic predispositions to diseases, understand inherited health risks, and get personalized recommendations based on your unique genetic makeup and family history.</p>
+                        <button class="select-button" onclick="selectReportType('dna')">Analyze DNA Report</button>
+                    </div>
+                    
+                    <div class="report-card">
+                        <h3>🫀 Cardiac Health Screening</h3>
+                        <p>Specialized analysis for heart health reports including ECG, stress tests, and cardiac enzyme levels. Early detection of heart disease risk and personalized cardiac care recommendations.</p>
+                        <button class="select-button" onclick="selectReportType('cardiac')">Analyze Cardiac Report</button>
+                    </div>
+                    
+                    <div class="report-card">
+                        <h3>📊 Comprehensive Health Panel</h3>
+                        <p>Full-spectrum analysis combining multiple report types for a complete health picture. Perfect for annual health checkups and comprehensive wellness assessments.</p>
+                        <button class="select-button" onclick="selectReportType('comprehensive')">Full Health Analysis</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Subscription Page -->
+    <div id="subscription" class="page">
+        <section class="subscription-section">
+            <div class="subscription-container">
+                <h2>FitCheck Prime</h2>
+                <p>Unlock advanced health insights with premium features and priority support</p>
+                
+                <div class="subscription-plans">
+                    <!-- Silver Plan -->
+                    <div class="plan-card silver">
+                        <div class="plan-header">
+                            <h3 class="plan-name silver">Silver</h3>
+                            <div class="plan-price">₹99</div>
+                            <div class="plan-period">per week</div>
+                            <div class="plan-description">Perfect for individuals getting started with health tracking</div>
+                        </div>
+                        
+                        <ul class="plan-features">
+                            <li>5 Report Analyses per week</li>
+                            <li>Basic AI Insights</li>
+                            <li>Hospital Locator</li>
+                            <li>Email Support</li>
+                            <li class="unavailable">Family Sharing (up to 4 members)</li>
+                            <li class="unavailable">Priority Support</li>
+                            <li class="unavailable">Advanced Analytics</li>
+                            <li class="unavailable">Personalized Health Plans</li>
+                        </ul>
+                        
+                        <button class="subscribe-btn silver" onclick="subscribe('silver')">Choose Silver</button>
+                    </div>
+
+                    <!-- Gold Plan -->
+                    <div class="plan-card gold">
+                        <div class="popular-badge">Most Popular</div>
+                        <div class="plan-header">
+                            <h3 class="plan-name gold">Gold</h3>
+                            <div class="plan-price">₹199</div>
+                            <div class="plan-period">per month</div>
+                            <div class="plan-description">Ideal for families who want comprehensive health monitoring</div>
+                        </div>
+                        
+                        <ul class="plan-features">
+                            <li>Unlimited Report Analyses</li>
+                            <li>Advanced AI Insights</li>
+                            <li>Hospital Locator with Reviews</li>
+                            <li>Family Sharing (up to 4 members)</li>
+                            <li>Priority Email & Chat Support</li>
+                            <li>Health Trend Analytics</li>
+                            <li>Appointment Booking Assistance</li>
+                            <li class="unavailable">Personalized Health Plans</li>
+                        </ul>
+                        
+                        <button class="subscribe-btn gold" onclick="subscribe('gold')">Choose Gold</button>
+                    </div>
+
+                    <!-- Platinum Plan -->
+                    <div class="plan-card platinum">
+                        <div class="plan-header">
+                            <h3 class="plan-name platinum">Platinum</h3>
+                            <div class="plan-price">₹999</div>
+                            <div class="plan-period">per year</div>
+                            <div class="plan-description">Complete health management solution for serious health enthusiasts</div>
+                        </div>
+                        
+                        <ul class="plan-features">
+                            <li>Unlimited Everything</li>
+                            <li>AI-Powered Health Plans</li>
+                            <li>Hospital Network Access</li>
+                            <li>Family Sharing (up to 6 members)</li>
+                            <li>24/7 Priority Support</li>
+                            <li>Advanced Predictive Analytics</li>
+                            <li>Personal Health Concierge</li>
+                            <li>Specialist Consultation Credits</li>
+                        </ul>
+                        
+                        <button class="subscribe-btn platinum" onclick="subscribe('platinum')">Choose Platinum</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Upload Report Page -->
+    <div id="upload" class="page">
+        <section class="upload-section">
+            <div class="upload-container">
+                <h2>Upload Your Health Report</h2>
+                <p>Upload your medical report and get instant AI-powered analysis with personalized recommendations</p>
+                
+                <form class="upload-form" onsubmit="analyzeReport(event)">
+                    <div class="report-type-selection">
+                        <label for="reportType">Select Report Type:</label>
+                        <select id="reportType" class="report-type-select" required>
+                            <option value="">Choose report type...</option>
+                            <option value="blood">Blood Test Analysis</option>
+                            <option value="dna">DNA & Genetic Testing</option>
+                            <option value="cardiac">Cardiac Health Screening</option>
+                            <option value="comprehensive">Comprehensive Health Panel</option>
+                        </select>
+                    </div>
+
+                    <div class="file-input-wrapper">
+                        <input type="file" id="reportFile" class="file-input" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" required onchange="handleFileSelect(event)">
+                        <div class="file-input-button">
+                            📁 Choose Report File
+                        </div>
+                    </div>
+                    
+                    <div id="fileInfo" class="file-info">
+                        <p><strong>Selected File:</strong> <span id="fileName"></span></p>
+                        <p><strong>File Size:</strong> <span id="fileSize"></span></p>
+                        <p><strong>File Type:</strong> <span id="fileType"></span></p>
+                    </div>
+
+                    <div style="margin: 2rem 0; padding: 1.5rem; background: rgba(53, 164, 154, 0.1); border-radius: 10px; text-align: left;">
+                        <h4 style="color: rgba(53, 164, 154, 1); margin-bottom: 1rem;">📋 Supported File Formats:</h4>
+                        <ul style="list-style: none; padding: 0;">
+                            <li style="margin-bottom: 0.5rem;">✓ PDF documents (.pdf)</li>
+                            <li style="margin-bottom: 0.5rem;">✓ Image files (.jpg, .jpeg, .png)</li>
+                            <li style="margin-bottom: 0.5rem;">✓ Word documents (.doc, .docx)</li>
+                            <li style="margin-bottom: 0.5rem;">✓ Maximum file size: 10MB</li>
+                        </ul>
+                    </div>
+
+                    <button type="submit" id="analyzeBtn" class="analyze-button" disabled>
+                        🤖 Analyze Report with AI
+                    </button>
+                </form>
+
+                <div style="margin-top: 3rem; text-align: left;">
+                    <h3 style="color: rgba(53, 164, 154, 1); margin-bottom: 1rem;">🔒 Your Privacy is Protected</h3>
+                    <ul style="list-style: none; padding: 0; color: #666;">
+                        <li style="margin-bottom: 0.5rem;">• All reports are encrypted and securely processed</li>
+                        <li style="margin-bottom: 0.5rem;">• Your data is never shared with third parties</li>
+                        <li style="margin-bottom: 0.5rem;">• Files are automatically deleted after analysis</li>
+                        <li style="margin-bottom: 0.5rem;">• HIPAA compliant processing and storage</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Analysis Results Page -->
+    <div id="results" class="page">
+        <section class="results-section">
+            <div class="results-container">
+                <div class="results-header">
+                    <h2>📊 Health Analysis Results</h2>
+                    <div class="report-info">
+                        <p><strong>Report Type:</strong> <span id="analyzedReportType"></span></p>
+                        <p><strong>Analysis Date:</strong> <span id="analysisDate"></span></p>
+                        <p><strong>File Name:</strong> <span id="analyzedFileName"></span></p>
+                    </div>
+                </div>
+
+                <div class="results-grid">
+                    <!-- Summary Card -->
+                    <div class="result-card summary-card">
+                        <div class="card-header">
+                            <div class="card-icon">📋</div>
+                            <div class="card-title">Health Summary</div>
+                        </div>
+                        <div class="card-content">
+                            <p style="font-size: 1.2rem; margin-bottom: 1.5rem; color: #555;">Your overall health profile shows mixed results with several areas requiring attention and improvement opportunities.</p>
+                            <div class="summary-stats">
+                                <div class="stat-item">
+                                    <div class="stat-value">72%</div>
+                                    <div class="stat-label">Overall Health Score</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value">3</div>
+                                    <div class="stat-label">Risk Factors</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value">5</div>
+                                    <div class="stat-label">Recommendations</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value">1</div>
+                                    <div class="stat-label">Doctor Alerts</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Risk Assessment Card -->
+                    <div class="result-card">
+                        <div class="card-header">
+                            <div class="card-icon">⚠️</div>
+                            <div class="card-title">Risk Assessment</div>
+                        </div>
+                        <div class="card-content">
+                            <div class="risk-levels">
+                                <div class="risk-item">
+                                    <span class="risk-name">Cardiovascular Disease</span>
+                                    <span class="risk-level risk-medium">Medium</span>
+                                </div>
+                                <div class="risk-item">
+                                    <span class="risk-name">Type 2 Diabetes</span>
+                                    <span class="risk-level risk-high">High</span>
+                                </div>
+                                <div class="risk-item">
+                                    <span class="risk-name">Vitamin D Deficiency</span>
+                                    <span class="risk-level risk-high">High</span>
+                                </div>
+                                <div class="risk-item">
+                                    <span class="risk-name">Anemia</span>
+                                    <span class="risk-level risk-low">Low</span>
+                                </div>
+                                <div class="risk-item">
+                                    <span class="risk-name">Kidney Function</span>
+                                    <span class="risk-level risk-low">Low</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Diet Recommendations Card -->
+                    <div class="result-card">
+                        <div class="card-header">
+                            <div class="card-icon">🍎</div>
+                            <div class="card-title">Diet Recommendations</div>
+                        </div>
+                        <div class="card-content">
+                            <ul class="recommendation-list">
+                                <li><strong>Increase Fiber Intake:</strong> Consume 25-30g daily through whole grains, vegetables, and fruits to improve glucose control.</li>
+                                <li><strong>Omega-3 Rich Foods:</strong> Include fatty fish (salmon, mackerel) 2-3 times weekly for cardiovascular health.</li>
+                                <li><strong>Vitamin D Sources:</strong> Add fortified foods, fatty fish, and consider supplementation after consulting doctor.</li>
+                                <li><strong>Reduce Refined Sugars:</strong> Limit processed foods and sugary beverages to manage blood glucose levels.</li>
+                                <li><strong>Iron Absorption:</strong> Pair iron-rich foods with vitamin C sources for better absorption.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Lifestyle Suggestions Card -->
+                    <div class="result-card">
+                        <div class="card-header">
+                            <div class="card-icon">🏃‍♂️</div>
+                            <div class="card-title">Lifestyle Suggestions</div>
+                        </div>
+                        <div class="card-content">
+                            <ul class="recommendation-list">
+                                <li><strong>Regular Exercise:</strong> Aim for 150 minutes moderate-intensity exercise weekly, including both cardio and strength training.</li>
+                                <li><strong>Sleep Optimization:</strong> Maintain 7-9 hours quality sleep nightly to support metabolic health and recovery.</li>
+                                <li><strong>Stress Management:</strong> Practice meditation, yoga, or deep breathing exercises for 10-15 minutes daily.</li>
+                                <li><strong>Sun Exposure:</strong> Get 15-20 minutes morning sunlight daily for natural vitamin D synthesis.</li>
+                                <li><strong>Hydration:</strong> Drink 8-10 glasses of water daily to support kidney function and overall health.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Doctor Alerts Card -->
+                    <div class="result-card">
+                        <div class="card-header">
+                            <div class="card-icon">👨‍⚕️</div>
+                            <div class="card-title">Doctor Alerts</div>
+                        </div>
+                        <div class="card-content">
+                            <div class="alert-item">
+                                <div class="alert-priority">HIGH PRIORITY</div>
+                                <h4 style="color: #e53e3e; margin-bottom: 0.5rem;">Elevated Blood Glucose Levels</h4>
+                                <p>Your fasting glucose levels (126 mg/dL) indicate potential diabetes. <strong>Schedule an appointment with your healthcare provider within 1-2 weeks</strong> for further evaluation and possible glucose tolerance testing.</p>
+                            </div>
+                            <div style="background: rgba(53, 164, 154, 0.1); padding: 1.5rem; border-radius: 10px; margin-top: 1rem;">
+                                <p style="margin: 0;"><strong>Recommended Actions:</strong></p>
+                                <ul style="margin: 0.5rem 0 0 1.5rem;">
+                                    <li>Book endocrinologist consultation</li>
+                                    <li>Monitor blood sugar daily</li>
+                                    <li>Follow prescribed dietary changes immediately</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- UPDATED: Nearby Hospitals Card with Full Width and Scrollbar -->
+                    <div class="result-card hospital-card">
+                        <div class="card-header">
+                            <div class="card-icon">🏥</div>
+                            <div class="card-title">Nearby Hospitals</div>
+                        </div>
+                        <div class="card-content">
+                            <div id="locationStatus" class="location-status loading">
+                                <span>📍</span>
+                                <span>Detecting your location to find nearby hospitals...</span>
+                            </div>
+                            <div id="hospitalsList" class="hospital-list">
+                                <!-- Hospitals will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="new-analysis-btn" onclick="showPage('upload')">
+                    🔄 Analyze Another Report
+                </button>
+            </div>
+        </section>
+    </div>
+
+    <!-- About Us Page -->
+    <div id="about" class="page">
+        <section class="about-section">
+            <div class="about-container">
+                <h2>About FitCheck</h2>
+                <div class="about-content">
+                    <div class="about-text">
+                        <p>FitCheck is revolutionizing healthcare by making complex medical data accessible to everyone. Our AI-powered platform bridges the gap between medical professionals and patients, transforming technical health reports into clear, actionable insights.</p>
+                        
+                        <p>Founded with the mission to democratize health information, we believe everyone deserves to understand their health status without needing a medical degree. Our advanced machine learning algorithms analyze thousands of health parameters to provide personalized recommendations that fit your lifestyle.</p>
+                        
+                        <p>Whether you're managing a chronic condition, pursuing optimal wellness, or simply want to understand your latest health screening, FitCheck empowers you to take control of your health journey with confidence and clarity.</p>
+                    </div>
+                    
+                    <div class="about-features">
+                        <div class="feature-item">
+                            <h4>🤖 AI-Powered Analysis</h4>
+                            <p>Advanced machine learning algorithms trained on millions of health records for accurate insights.</p>
+                        </div>
+                        
+                        <div class="feature-item">
+                            <h4>🏥 Doctor Alert System</h4>
+                            <p>Automatic alerts for critical values requiring immediate medical attention.</p>
+                        </div>
+                        
+                        <div class="feature-item">
+                            <h4>🍎 Personalized Recommendations</h4>
+                            <p>Customized diet and lifestyle suggestions based on your specific health profile.</p>
+                        </div>
+                        
+                        <div class="feature-item">
+                            <h4>🔒 Secure & Private</h4>
+                            <p>Bank-level encryption ensures your health data remains completely confidential.</p>
+                        </div>
+                        
+                        <div class="feature-item">
+                            <h4>🌍 Multi-Language Support</h4>
+                            <p>Reports available in multiple languages for global accessibility.</p>
+                        </div>
+                        
+                        <div class="feature-item">
+                            <h4>📱 Progress Tracking</h4>
+                            <p>Monitor your health improvements over time with detailed trend analysis.</p>
+                        </div>
+                        
+                        <div class="feature-item">
+                            <h4>📍 Location-Based Healthcare</h4>
+                            <p>Automatically find nearby hospitals and healthcare providers based on your analysis results.</p>
+                        </div>
+
+                        <div class="feature-item">
+                            <h4>👑 Prime Membership</h4>
+                            <p>Flexible subscription plans with family sharing and advanced features for comprehensive health management.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Contact Us Page -->
+    <div id="contact" class="page">
+        <section class="contact-section">
+            <div class="contact-container">
+                <h2>Contact Us</h2>
+                <p>Have questions about FitCheck? We'd love to hear from you!</p>
+                
+                <form class="contact-form" onsubmit="submitForm(event)">
+                    <div class="form-group">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="subject">Subject</label>
+                        <input type="text" id="subject" name="subject" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="message">Message</label>
+                        <textarea id="message" name="message" rows="5" required placeholder="Tell us how we can help you..."></textarea>
+                    </div>
+                    
+                    <button type="submit" class="submit-button">Send Message</button>
+                </form>
+                
+                <div style="margin-top: 3rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem;">
+                    <div style="text-align: center;">
+                        <h4 style="color: rgba(53, 164, 154, 1); margin-bottom: 1rem; font-size: 1.2rem;">📧 Email Us</h4>
+                        <p style="font-size: 1.1rem;">support@fitcheck.ai<br>partnerships@fitcheck.ai</p>
+                    </div>
+                    
+                    <div style="text-align: center;">
+                        <h4 style="color: rgba(53, 164, 154, 1); margin-bottom: 1rem; font-size: 1.2rem;">📞 Call Us</h4>
+                        <p style="font-size: 1.1rem;">+91-555-123-4567<br>Mon-Fri 9AM-6PM IST</p>
+                    </div>
+                    
+                    <div style="text-align: center;">
+                        <h4 style="color: rgba(53, 164, 154, 1); margin-bottom: 1rem; font-size: 1.2rem;">📍 Visit Us</h4>
+                        <p style="font-size: 1.1rem;">123 Health Tech Plaza<br>Bengaluru, Karnataka 560001</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2025 FitCheck. All rights reserved. | Transforming Health Reports with AI</p>
+    </footer>
+
+    <script>
+        // FitCheck Website JavaScript
+        let selectedReportType = '';
+        let uploadedFile = null;
+        let userLocation = null;
+
+        // Page Navigation Functions
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(pageId).classList.add('active');
+            document.querySelectorAll('.nav-menu a').forEach(link => {
+                link.classList.remove('active');
+            });
+            if (document.getElementById('nav-' + pageId)) {
+                document.getElementById('nav-' + pageId).classList.add('active');
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function selectReportType(reportType) {
+            selectedReportType = reportType;
+            document.getElementById('reportType').value = reportType;
+            showPage('upload');
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                uploadedFile = file;
+                document.getElementById('fileName').textContent = file.name;
+                document.getElementById('fileSize').textContent = formatFileSize(file.size);
+                document.getElementById('fileType').textContent = file.type || 'Unknown';
+                document.getElementById('fileInfo').classList.add('show');
+                updateAnalyzeButton();
+            }
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function updateAnalyzeButton() {
+            const reportType = document.getElementById('reportType').value;
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            if (reportType && uploadedFile) {
+                analyzeBtn.disabled = false;
+            } else {
+                analyzeBtn.disabled = true;
+            }
+        }
+
+        function analyzeReport(event) {
+            event.preventDefault();
+            const reportType = document.getElementById('reportType').value;
+            const file = uploadedFile;
+            if (!reportType || !file) {
+                alert('Please select a report type and upload a file.');
+                return;
+            }
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            const originalText = analyzeBtn.textContent;
+            analyzeBtn.textContent = '🔄 Analyzing Report...';
+            analyzeBtn.disabled = true;
+            
+            setTimeout(() => {
+                document.getElementById('analyzedReportType').textContent = getReportTypeName(reportType);
+                document.getElementById('analysisDate').textContent = new Date().toLocaleDateString();
+                document.getElementById('analyzedFileName').textContent = file.name;
+                showPage('results');
+                // Get user location and find hospitals after showing results
+                getCurrentLocationAndFindHospitals();
+                document.getElementById('reportType').value = '';
+                document.getElementById('reportFile').value = '';
+                document.getElementById('fileInfo').classList.remove('show');
+                uploadedFile = null;
+                analyzeBtn.textContent = originalText;
+                analyzeBtn.disabled = true;
+            }, 3000);
+        }
+
+        function getReportTypeName(type) {
+            const types = {
+                'blood': 'Blood Test Analysis',
+                'dna': 'DNA & Genetic Testing',
+                'cardiac': 'Cardiac Health Screening',
+                'comprehensive': 'Comprehensive Health Panel'
+            };
+            return types[type] || type;
+        }
+
+        function submitForm(event) {
+            event.preventDefault();
+            alert('Thank you for your message! Our team will get back to you within 24 hours.');
+            event.target.reset();
+        }
+
+        // Subscription Functions
+        function subscribe(plan) {
+            const plans = {
+                'silver': '₹199/week - Silver Plan',
+                'gold': '₹599/month - Gold Plan', 
+                'platinum': '₹4,999/year - Platinum Plan'
+            };
+            alert(`Thank you for choosing ${plans[plan]}! You will be redirected to our secure payment gateway.`);
+            // In a real application, this would redirect to payment processing
+        }
+
+        // ENHANCED: Location and Hospital Functions with More Dummy Hospitals
+        function getCurrentLocationAndFindHospitals() {
+            const locationStatus = document.getElementById('locationStatus');
+            
+            if (!navigator.geolocation) {
+                locationStatus.className = 'location-status error';
+                locationStatus.innerHTML = '<span>❌</span><span>Geolocation is not supported by this browser.</span>';
+                showEnhancedHospitals();
+                return;
+            }
+
+            locationStatus.className = 'location-status loading';
+            locationStatus.innerHTML = '<span>📍</span><span>Getting your location...</span>';
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    userLocation = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+                    locationStatus.className = 'location-status';
+                    locationStatus.innerHTML = '<span>✅</span><span>Location detected! Finding nearby hospitals...</span>';
+                    
+                    setTimeout(() => {
+                        findNearbyHospitals(userLocation);
+                    }, 1000);
+                },
+                (error) => {
+                    locationStatus.className = 'location-status error';
+                    let errorMessage = 'Location access denied. ';
+                    switch (error.code) {
+                        case error.PERMISSION_DENIED:
+                            errorMessage += 'Please enable location access and refresh the page.';
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            errorMessage += 'Location information unavailable.';
+                            break;
+                        case error.TIMEOUT:
+                            errorMessage += 'Location request timed out.';
+                            break;
+                    }
+                    locationStatus.innerHTML = `<span>❌</span><span>${errorMessage}</span>`;
+                    
+                    setTimeout(() => {
+                        showEnhancedHospitals();
+                    }, 2000);
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 300000
+                }
+            );
+        }
+
+        function findNearbyHospitals(location) {
+            const enhancedHospitals = [
+                {
+                    name: "Apollo Hospital",
+                    address: "21, Greams Lane, Off Greams Road, Chennai",
+                    distance: "0.8 km",
+                    rating: 4.6,
+                    specialties: ["Multi-Specialty", "Emergency", "Cardiology", "Oncology"],
+                    phone: "+91-44-2829-3333"
+                },
+                {
+                    name: "Fortis Healthcare",
+                    address: "154/9, Bannerghatta Road, Opposite IIM-B, Bengaluru",
+                    distance: "1.2 km",
+                    rating: 4.4,
+                    specialties: ["Diabetes Care", "Endocrinology", "Orthopedics", "Nutrition"],
+                    phone: "+91-80-6621-4444"
+                },
+                {
+                    name: "Max Super Speciality Hospital",
+                    address: "1, Press Enclave Road, Saket, New Delhi",
+                    distance: "1.8 km",
+                    rating: 4.5,
+                    specialties: ["Cardiology", "Cardiac Surgery", "Neurology", "Preventive Care"],
+                    phone: "+91-11-2651-5050"
+                },
+                {
+                    name: "Manipal Hospital",
+                    address: "98, Ruskin Road, Off Old Airport Road, Bengaluru",
+                    distance: "2.1 km",
+                    rating: 4.3,
+                    specialties: ["Multi-Specialty", "Emergency", "ICU", "Diagnostics"],
+                    phone: "+91-80-2502-4444"
+                },
+                {
+                    name: "AIIMS (All India Institute of Medical Sciences)",
+                    address: "Ansari Nagar, New Delhi",
+                    distance: "2.5 km",
+                    rating: 4.8,
+                    specialties: ["Government Hospital", "All Specialties", "Research", "Teaching"],
+                    phone: "+91-11-2659-3333"
+                },
+                {
+                    name: "Kokilaben Dhirubhai Ambani Hospital",
+                    address: "Rao Saheb Achutrao Patwardhan Marg, Four Bunglows, Mumbai",
+                    distance: "2.8 km",
+                    rating: 4.7,
+                    specialties: ["Cancer Care", "Heart Institute", "Neurosciences", "Robotics"],
+                    phone: "+91-22-4269-6969"
+                },
+                {
+                    name: "Medanta - The Medicity",
+                    address: "Sector 38, Gurgaon, Haryana",
+                    distance: "3.2 km",
+                    rating: 4.5,
+                    specialties: ["Multi-Super Specialty", "Transplant", "Oncology", "Emergency"],
+                    phone: "+91-124-4834-444"
+                },
+                {
+                    name: "Narayana Health",
+                    address: "258/A, Bommasandra Industrial Area, Bengaluru",
+                    distance: "3.5 km",
+                    rating: 4.2,
+                    specialties: ["Cardiac Sciences", "Affordable Healthcare", "Pediatrics", "Emergency"],
+                    phone: "+91-80-7122-2200"
+                },
+                {
+                    name: "Columbia Asia Hospital",
+                    address: "Kirloskar Business Park, Bellary Road, Hebbal, Bengaluru",
+                    distance: "4.0 km",
+                    rating: 4.1,
+                    specialties: ["General Medicine", "Surgery", "Maternity", "Pediatrics"],
+                    phone: "+91-80-4080-4050"
+                },
+                {
+                    name: "Aster CMI Hospital",
+                    address: "#43/2, New Airport Road, NH-7, Sahakara Nagar, Bengaluru",
+                    distance: "4.2 km",
+                    rating: 4.4,
+                    specialties: ["Multi-Specialty", "BMT", "Oncology", "Critical Care"],
+                    phone: "+91-80-4344-4444"
+                },
+                {
+                    name: "Cloudnine Hospital",
+                    address: "1533, 9th Main, 3rd Block, Jayanagar, Bengaluru",
+                    distance: "4.5 km",
+                    rating: 4.3,
+                    specialties: ["Maternity", "Women's Health", "Fertility", "Pediatrics"],
+                    phone: "+91-80-4090-4090"
+                },
+                {
+                    name: "Sankara Nethralaya",
+                    address: "18, College Road, Nungambakkam, Chennai",
+                    distance: "4.8 km",
+                    rating: 4.6,
+                    specialties: ["Eye Care", "Ophthalmology", "Vision Research", "Eye Surgery"],
+                    phone: "+91-44-2827-1616"
+                }
+            ];
+
+            displayHospitals(enhancedHospitals);
+        }
+
+        function showEnhancedHospitals() {
+            const locationStatus = document.getElementById('locationStatus');
+            locationStatus.className = 'location-status';
+            locationStatus.innerHTML = '<span>📍</span><span>Showing popular hospitals in Pune in India</span>';
+            
+            const fallbackHospitals = [
+                {
+                    name: "City General Hospital",
+                    address: "MG Road, City Center",
+                    distance: "~2.5 km",
+                    rating: 4.1,
+                    specialties: ["Emergency", "General Medicine", "Surgery"],
+                    phone: "+91-80-1234-5000"
+                },
+                {
+                    name: "Metro Medical Center",
+                    address: "Health Avenue, Medical District",
+                    distance: "~3.0 km",
+                    rating: 4.4,
+                    specialties: ["Specialty Care", "Diagnostics", "Outpatient"],
+                    phone: "+91-80-1234-6000"
+                },
+                {
+                    name: "Prime Healthcare",
+                    address: "Wellness Road, Downtown",
+                    distance: "~1.8 km",
+                    rating: 4.2,
+                    specialties: ["Family Medicine", "Preventive Care", "Diabetes Care"],
+                    phone: "+91-80-1234-7000"
+                },
+                {
+                    name: "Sunrise Hospital",
+                    address: "Park Street, Central Business District",
+                    distance: "~2.2 km",
+                    rating: 4.0,
+                    specialties: ["Cardiology", "Orthopedics", "Emergency"],
+                    phone: "+91-80-1234-8000"
+                },
+                {
+                    name: "Unity Medical Complex",
+                    address: "Hospital Lane, Medical Hub",
+                    distance: "~3.5 km",
+                    rating: 4.3,
+                    specialties: ["Multi-Specialty", "ICU", "Surgery"],
+                    phone: "+91-80-1234-9000"
+                }
+            ];
+            
+            displayHospitals(fallbackHospitals);
+        }
+
+        function displayHospitals(hospitals) {
+            const hospitalsList = document.getElementById('hospitalsList');
+            
+            const hospitalsHTML = hospitals.map(hospital => `
+                <div class="hospital-item">
+                    <div class="hospital-header">
+                        <div>
+                            <div class="hospital-name">${hospital.name}</div>
+                            <div class="hospital-address">${hospital.address}</div>
+                        </div>
+                        <div class="hospital-distance">${hospital.distance}</div>
+                    </div>
+                    
+                    <div class="hospital-rating">
+                        <div class="stars">${'★'.repeat(Math.floor(hospital.rating))}${'☆'.repeat(5-Math.floor(hospital.rating))}</div>
+                        <div class="rating-text">${hospital.rating}/5.0</div>
+                    </div>
+                    
+                    <div class="hospital-specialties">
+                        ${hospital.specialties.map(specialty => `<span class="specialty-tag">${specialty}</span>`).join('')}
+                    </div>
+                    
+                    <div class="hospital-actions">
+                        <a href="tel:${hospital.phone}" class="action-btn call-btn">📞 Call</a>
+                        <a href="#" onclick="getDirections('${hospital.name}', '${hospital.address}')" class="action-btn directions-btn">🗺️ Directions</a>
+                    </div>
+                </div>
+            `).join('');
+            
+            hospitalsList.innerHTML = hospitalsHTML;
+        }
+
+        function getDirections(hospitalName, address) {
+            const encodedAddress = encodeURIComponent(address);
+            const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodedAddress}`;
+            window.open(directionsUrl, '_blank');
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const reportTypeSelect = document.getElementById('reportType');
+            if (reportTypeSelect) {
+                reportTypeSelect.addEventListener('change', updateAnalyzeButton);
+            }
+        });
+    </script>
+</body>
+</html>

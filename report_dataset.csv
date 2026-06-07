@@ -1,0 +1,7 @@
+HbA1C,EstimatedAverageGlucose,Cholesterol,Triglycerides,BloodPressureSys,BloodPressureDia,Label
+5.2,95,170,130,120,80,Healthy
+6.8,140,200,160,135,88,Needs Attention
+8.1,200,250,220,145,95,Critical
+4.9,92,160,120,118,76,Healthy
+7.2,160,240,210,150,100,Critical
+6.1,130,190,150,130,85,Needs Attention
